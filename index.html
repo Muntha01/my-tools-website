@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Tools Hub</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+      animation: fadeIn 1s ease-in-out;
+    }
+    .tool {
+      background: #1e2a38;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      box-shadow: 0 0 10px #00000088;
+      transition: 0.3s;
+    }
+    .tool:hover {
+      transform: scale(1.02);
+    }
+    textarea, input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      padding: 10px 20px;
+      background: #00b894;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>🛠️ Smart Tools Hub</h1>
+
+  <!-- Text to Speech Tool -->
+  <div class="tool">
+    <h2>🔊 Text to Speech</h2>
+    <textarea id="ttsText" rows="4" placeholder="Type something..."></textarea>
+    <button onclick="speakText()">Speak</button>
+  </div>
+
+  <!-- QR Code Generator -->
+  <div class="tool">
+    <h2>🔳 QR Code Generator</h2>
+    <input id="qrText" type="text" placeholder="Enter text for QR" />
+    <button onclick="generateQR()">Generate QR</button>
+    <br /><canvas id="qrCanvas"></canvas>
+  </div>
+
+  <!-- Word Counter -->
+  <div class="tool">
+    <h2>✍️ Word & Character Counter</h2>
+    <textarea id="wordInput" rows="4" oninput="countWords()" placeholder="Start typing..."></textarea>
+    <p id="wordCount">Words: 0 | Characters: 0</p>
+  </div>
+
+  <!-- Chatbot (Fake ChatGPT) -->
+  <div class="tool">
+    <h2>🤖 Mini Chatbot</h2>
+    <textarea id="chatInput" rows="2" placeholder="Ask something..."></textarea>
+    <button onclick="chatBotReply()">Send</button>
+    <p id="chatResponse"></p>
+  </div>
+
+  <!-- Crypto Prices -->
+  <div class="tool">
+    <h2>💰 Live Crypto Prices (Binance)</h2>
+    <button onclick="fetchCrypto()">Refresh Prices</button>
+    <p id="cryptoPrice">Loading...</p>
+  </div>
+
+  <script>
+    // Text to Speech
+    function speakText() {
+      const msg = new SpeechSynthesisUtterance(document.getElementById("ttsText").value);
+      window.speechSynthesis.speak(msg);
+    }
+
+    // QR Code Generator (basic drawing)
+    function generateQR() {
+      const canvas = document.getElementById("qrCanvas");
+      const ctx = canvas.getContext("2d");
+      const text = document.getElementById("qrText").value;
+      canvas.width = canvas.height = 200;
+      ctx.clearRect(0, 0, 200, 200);
+      ctx.font = "16px Arial";
+      ctx.fillText("QR: " + text, 20, 100);
+    }
+
+    // Word Counter
+    function countWords() {
+      const text = document.getElementById("wordInput").value;
+      const words = text.trim().split(/\s+/).filter(Boolean);
+      document.getElementById("wordCount").innerText = `Words: ${words.length} | Characters: ${text.length}`;
+    }
+
+    // Fake Chatbot
+    function chatBotReply() {
+      const input = document.getElementById("chatInput").value.toLowerCase();
+      let response = "I don't understand. Try asking something else.";
+      if (input.includes("hello")) response = "Hi! How can I help you?";
+      else if (input.includes("your name")) response = "I'm SmartBot.";
+      else if (input.includes("bye")) response = "Goodbye!";
+      document.getElementById("chatResponse").innerText = response;
+    }
+
+    // Crypto Price from Binance
+    async function fetchCrypto() {
+      try {
+        const res = await fetch("https://api.binance.com/api/v3/ticker/price?symbols=[\"BTCUSDT\",\"ETHUSDT\"]");
+        const data = await res.json();
+        const btc = data.find(c => c.symbol === "BTCUSDT");
+        const eth = data.find(c => c.symbol === "ETHUSDT");
+        document.getElementById("cryptoPrice").innerText = `BTC: $${parseFloat(btc.price).toFixed(2)} | ETH: $${parseFloat(eth.price).toFixed(2)}`;
+      } catch (e) {
+        document.getElementById("cryptoPrice").innerText = "Error fetching prices.";
+      }
+    }
+
+    fetchCrypto(); // Initial call
+  </script>
+</body>
+</html>
